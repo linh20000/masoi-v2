@@ -1,0 +1,47 @@
+# Role Detail Index
+
+**43 canonical role detail files are present.**
+
+- `basic/bear-tamer.md`
+- `basic/bodyguard.md`
+- `basic/cupid.md`
+- `basic/elder.md`
+- `basic/fox.md`
+- `basic/hunter.md`
+- `basic/hypnotist.md`
+- `basic/idiot.md`
+- `basic/little-girl.md`
+- `basic/moon-maiden.md`
+- `basic/necromancer.md`
+- `basic/pharmacist.md`
+- `basic/puppeteer.md`
+- `basic/raven-plus.md`
+- `basic/raven.md`
+- `basic/rusty-sword-knight.md`
+- `basic/scapegoat.md`
+- `basic/seer.md`
+- `basic/stuttering-judge.md`
+- `basic/three-brothers.md`
+- `basic/two-sisters.md`
+- `basic/villager.md`
+- `basic/witch.md`
+- `neutral/actor.md`
+- `neutral/angel.md`
+- `neutral/arsonist.md`
+- `neutral/assassin.md`
+- `neutral/avenger.md`
+- `neutral/devoted-servant.md`
+- `neutral/pied-piper.md`
+- `neutral/sect-member.md`
+- `neutral/shadow.md`
+- `neutral/spiritualist.md`
+- `neutral/thief.md`
+- `neutral/wild-child.md`
+- `neutral/wolf-dog.md`
+- `wolves/big-bad-wolf.md`
+- `wolves/father-of-werewolves.md`
+- `wolves/fire-wolf.md`
+- `wolves/werewolf.md`
+- `wolves/white-werewolf.md`
+- `wolves/wolf-brothers.md`
+- `wolves/wolf-cub.md`

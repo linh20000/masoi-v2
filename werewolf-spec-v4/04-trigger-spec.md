@@ -1,0 +1,26 @@
+# 04 — Trigger Specification
+
+## Trigger catalog
+- ON_GAME_START
+- ON_ROLE_REVEAL
+- ON_NIGHT_START
+- ON_ROLE_TURN_START
+- ON_WOLF_VICTIM_SELECTED
+- ON_WOLF_DEATH
+- ON_PLAYER_DEATH
+- ON_TARGET_DEATH
+- ON_EXECUTION
+- ON_VOTE_CAST
+- ON_VOTE_TIE
+- ON_DAY_START
+- ON_BEFORE_EXECUTION
+- ON_PHASE_CHANGE
+- ON_ROLE_TRANSFORM
+- ON_WIN_CHECK
+- ON_GAME_END
+
+## Rule
+Trigger chỉ phát signal. Business behavior nằm ở Rule/Effect/Transformation.
+
+Example:
+`ON_TARGET_DEATH + idol relationship → TRANSFORM(WILD_CHILD → WEREWOLF)`
