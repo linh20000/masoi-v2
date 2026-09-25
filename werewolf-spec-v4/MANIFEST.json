@@ -1,5 +1,5 @@
 {
-  "version": "V4",
+  "version": "V4.1",
   "documents": [
     "00-overview.md",
     "01-role-spec.md",
@@ -21,7 +21,23 @@
     "17-flutter-client-architecture.md",
     "18-asset-management.md",
     "19-test-spec.md",
-    "20-deployment-spec.md"
+    "20-deployment-spec.md",
+    "21-complete-rules-and-acceptance-tests.md",
+    "22-role-implementation-contract.md",
+    "23-scenario-schema.md",
+    "24-action-registry.md",
+    "25-resolution-matrix.md",
+    "26-vote-policy.md",
+    "27-win-condition-predicates.md",
+    "28-status-lifecycle.md",
+    "29-error-catalog.md",
+    "30-websocket-json-schema.md",
+    "31-reconnect-and-idempotency.md",
+    "32-database-ddl.md",
+    "33-security-and-authorization.md",
+    "34-moderator-and-disconnect-rules.md",
+    "35-role-audit-matrix.md",
+    "36-balance-and-scenario-presets.md"
   ],
   "canonical_character_roles": 43,
   "role_detail_files": 43
