@@ -1,55 +1,60 @@
 # 03 — Action Specification
 
-## 1. Definition
-Action là command hợp lệ mà player gửi server.
+Action là command player gửi server. `24-action-registry.md` là **nguồn duy nhất** cho action code, metadata, validation và event contract.
 
-## 2. Contract
+## Canonical contract
+
 ```json
 {
-  "actionCode": "INSPECT_PLAYER",
-  "actorId": "player-01",
+  "type": "ACTION_REQUEST",
+  "gameId": "game-001",
+  "playerId": "player-01",
+  "clientRequestId": "uuid",
+  "actionCode": "seer.inspect_player",
   "targets": ["player-05"],
   "payload": {},
-  "clientRequestId": "uuid"
+  "submittedAt": "2026-09-25T12:00:00Z"
 }
 ```
 
-Server pipeline:
-`Command → Actor/Phase Validation → Target Validation → Rule Evaluation → Resolution → Events`
+Action phải được xác thực theo pipeline:
 
-## 3. Canonical action catalog
-- INSPECT_PLAYER
-- PROTECT_PLAYER
-- HEAL_WOLF_VICTIM
-- POISON_PLAYER
-- HUNTER_MARK_TARGET
-- HUNTER_SHOOT
-- WOLF_SELECT_VICTIM
-- WHITE_WOLF_KILL
-- EXTRA_WOLF_KILL
-- CONVERT_WOLF_VICTIM
-- LINK_LOVERS
-- CHOOSE_EXTRA_ROLE
-- CHOOSE_IDOL
-- CHOOSE_ALIGNMENT
-- PEEK_WOLVES
-- FOX_INSPECT_GROUP
-- APPLY_RAVEN_CURSE
-- BEWITCH_PLAYER
-- BURN_HOUSE
-- USE_SEDATIVE
-- USE_RESTORATIVE
-- KNIGHT_CHECK_WOLF
-- FORCE_WOLF_TARGET
-- ASK_DEAD_PLAYER
-- DISABLE_NIGHT_ABILITY
-- ASSASSIN_KILL
-- AVENGE_TARGET
-- VOTE_EXECUTION
-- TRANSFER_TITLE
+```text
+Command → Actor/Phase Validation → Target Validation → Rule Evaluation → Resolution → Events
+```
 
-Generic UI actions such as `CHOOSE_TARGET` are not domain actions; they are UI selection primitives.
+## Canonical action codes
 
-## 4. Action vs Effect
-Action = intent của player.
-Effect = mutation sau resolution.
+Action code dùng namespace lowercase, ví dụ:
+
+- `seer.inspect_player`
+- `bodyguard.protect_player`
+- `witch.heal_target`
+- `witch.poison_target`
+- `hunter.mark_target`
+- `hunter.shoot`
+- `werewolf.select_victim`
+- `white_wolf.kill`
+- `werewolf.extra_kill`
+- `father_wolf.convert_victim`
+- `cupid.link_lovers`
+- `wild_child.choose_idol`
+- `wolf_dog.choose_alignment`
+- `fox.inspect_group`
+- `raven.curse_target`
+- `pied_piper.bewitch_player`
+- `arsonist.burn_house`
+- `pharmacist.use_sedative`
+- `pharmacist.use_restorative`
+- `knight.check_wolf`
+- `moon_maiden.disable_ability`
+- `assassin.kill`
+- `avenger.choose_target`
+- `vote.execution`
+- `title.transfer`
+
+Tên uppercase trong source cũ chỉ là legacy aliases, không dùng để tạo action mới.
+
+## Action vs Effect
+
+Action là intent của player; Effect là mutation sau resolution. Client không tự quyết định action hợp lệ, death, transformation hoặc win condition.

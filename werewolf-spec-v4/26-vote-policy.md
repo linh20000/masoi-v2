@@ -1,58 +1,30 @@
 # 26 — Vote Policy
 
-> Ticket bỏ phiếu phải được hiểu như một system riêng biệt, không gộp vào action event.
+Vote là domain action `vote.execution`, nhưng kết quả được xử lý bởi Vote Policy.
 
-## 1. Cấu trúc vote
+## Canonical rules
 
-```json
-{
-  "voteId": "vote-001",
-  "voterId": "player-01",
-  "targetId": "player-07",
-  "weight": 1,
-  "modifierSources": ["raven"],
-  "status": "VALID",
-  "submittedAt": "2026-09-25T08:00:00Z"
-}
-```
-
-## 2. Quy tắc mặc định
-
-- Chỉ người sống mới vote.
-- Người chết và bị SILENCED không được vote nếu `voteDisabled`.
-- Vote của người đã bị mất quyền vote bị hủy.
-- Vote được đổi nhiều lần nếu `allowVoteChange=true`; vote hợp lệ cuối cùng là vote tính.
+- Chỉ player sống và `canVote=true` mới vote.
+- `SILENCED` chỉ chặn nói/chat; không chặn vote.
+- `VOTE_DISABLED` chặn vote.
+- Vote đổi được nếu scenario đặt `allowVoteChange=true`; vote cuối hợp lệ được tính.
 - Abstain không tạo hòa.
-- Hòa phiếu theo `voteTiePolicy`.
+- Raven modifier cộng vào target; không cộng vào voter.
+- Title weight áp dụng sau modifier và trước xác nhận target.
 
-## 3. Tie policy mặc định
+## Tie policy
 
 ```yaml
 voteTiePolicy: SCAPEGOAT_IF_PRESENT_ELSE_NO_EXECUTION
 ```
 
-Nếu đồ thị vote có nhiều target cùng số phiếu cao nhất:
+Nếu nhiều target cùng cao nhất, Scapegoat còn sống thì Scapegoat bị loại; nếu không thì không execution.
 
-- Nếu có Scapegoat và còn sống -> Scapegoat chết.
-- Nếu không có Scapegoat -> không execution.
-
-## 4. Modifier policy
-
-- Raven modifier được cộng vào target.
-- Vote modifier không được cộng vào người bỏ phiếu.
-- Title multiplier được áp dụng trước khi xác nhận execution target.
-
-## 5. Sheriff / Mayor policy
-
-- Nếu title có weight > 1, weight được tính trên `voteCount` cuối cùng.
-- Nếu title mất quyền vote, weight bị loại.
-- Title không được truyền sang người khác nếu không có `allowTitleTransfer`.
-
-## 6. Vote result
+## Canonical pipeline
 
 ```text
 valid votes
-→ apply modifiers
+→ apply target modifiers
 → apply title weights
 → remove invalid targets
 → find highest count

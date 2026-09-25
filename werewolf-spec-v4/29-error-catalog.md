@@ -1,8 +1,8 @@
 # 29 — Error Catalog
 
-> Server phải trả mã lỗi chuẩn. Không dùng text tùy tiện.
+Server trả error code ổn định, không dùng text tự do làm logic.
 
-## 1. Error codes
+## Error codes
 
 ```text
 GAME_NOT_FOUND
@@ -28,24 +28,28 @@ VARIANT_NOT_ENABLED
 WIN_ALREADY_DECLARED
 SCENARIO_INVALID
 REQUEST_RATE_LIMITED
+EVENT_VARIANT_REQUIRED
+EVENT_ALREADY_CONSUMED
+BLOOD_MOON_TARGET_INVALID
+BLOOD_MOON_CONFLICTING_VARIANT
+DEATH_CYCLE_DETECTED
 ```
 
-## 2. Response format
+`TARGET_INVALID` là legacy alias, không dùng trong response mới; mapping phải trả `INVALID_TARGET`.
+
+## Response
 
 ```json
 {
   "type": "ACTION_RESULT",
   "status": "REJECTED",
+  "gameId": "game-001",
+  "clientRequestId": "uuid",
+  "serverSequence": 42,
   "error": {
-    "code": "ABILITY_ALREADY_USED",
-    "messageKey": "game.error.ability_already_used",
+    "code": "INVALID_TARGET",
+    "messageKey": "game.error.invalid_target",
     "retryable": false
   }
 }
 ```
-
-## 3. Quy tắc
-
-- Không trả message dạng tự do nếu có error code.
-- `retryable` chỉ dùng nếu client có thể retry đúng cách.
-- Request fail phải có `serverSequence` hiện tại nếu có.
