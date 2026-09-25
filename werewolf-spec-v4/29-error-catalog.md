@@ -37,6 +37,8 @@ DEATH_CYCLE_DETECTED
 
 `TARGET_INVALID` là legacy alias, không dùng trong response mới; mapping phải trả `INVALID_TARGET`.
 
+`SEQUENCE_TOO_OLD` chỉ dùng cho API replay bắt buộc lịch sử; reconnect thông thường fallback bằng `SNAPSHOT`.
+
 ## Response
 
 ```json

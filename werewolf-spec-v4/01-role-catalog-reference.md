@@ -1,6 +1,7 @@
 # 01 — Canonical Role Catalog
 
 Canonical details are stored under `02-role-details/`. There are 43 Character Roles.
+Activation lifecycle and call order are defined in `37-role-lifecycle-catalog.md`.
 2. **Tiên tri** — `seer` — nhóm `basic`
 3. **Bảo vệ / Cảnh vệ** — `bodyguard` — nhóm `basic`
 4. **Phù thủy** — `witch` — nhóm `basic`

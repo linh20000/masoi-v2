@@ -5,12 +5,12 @@
 ## 1. Nguyên tắc chung
 
 1. Server là nguồn sự thật duy nhất.
-2. Mọi hành động đều có `actionId`, `clientRequestId`, `actorId`, `submittedAt`, `phase`, `sequence`.
+2. Mọi hành động đều có `actionId`, `clientRequestId`, `actorId`, `submittedAt`, `phase`, `serverSequence`.
 3. Một `clientRequestId` chỉ được xử lý một lần. Request lặp lại trả về kết quả cũ, không tạo hiệu ứng lần hai.
 4. Action chỉ hợp lệ nếu actor còn sống, đúng phase/turn, chưa bị vô hiệu hóa và target hợp lệ tại thời điểm server nhận action.
 5. Action hợp lệ được ghi nhận trước; hiệu ứng chỉ được thực thi trong resolution thích hợp.
 6. Khi hết timer, action chưa gửi được xem là `PASS`, trừ action bắt buộc. Action bắt buộc không có lựa chọn thì dùng target mặc định do scenario quy định; không tự chọn ngẫu nhiên nếu chưa khai báo.
-7. Người chơi disconnect không làm dừng phase. Reconnect nhận replay theo sequence hoặc snapshot mới nhất.
+7. Người chơi disconnect không làm dừng phase. Reconnect nhận replay theo `serverSequence` hoặc snapshot mới nhất.
 8. Death, transformation và win check chỉ được chốt sau khi hoàn thành resolution của event hiện tại.
 9. Khi tài liệu nguồn mâu thuẫn, scenario phải chọn đúng variant trước khi bắt đầu; server không tự trộn hai luật.
 
@@ -23,7 +23,7 @@
 - Mỗi player chỉ có một Character Role; Title và Relationship là state bổ sung.
 - Không được có hai role độc quyền nếu scenario không cho phép.
 - Role bị loại khỏi deck phải được ghi vào `excludedRoles`.
-- Mọi ván phải lưu: `rulesetVersion`, `scenarioCode`, `roleDeck`, `variantCodes`, `seed` và thứ tự player.
+- Mọi ván phải lưu: `rulesetVersion`, `scenarioCode`, `roleDeck`, `variants`, `seed` và thứ tự player.
 
 ### 2.2 Preset mặc định
 
@@ -57,11 +57,13 @@ WAITING → STARTING → ROLE_REVEAL → NIGHT
 ```
 
 - `ROLE_REVEAL`: server gửi role và knowledge riêng tư; không gửi role của người khác.
-- `NIGHT`: role được gọi theo `nightOrder` của scenario.
+- `NIGHT`: role/action được gọi theo `firstNightOrder` ở Night 1 hoặc
+  `normalNightOrder` từ Night 2 của scenario, sau khi lọc activation
+  condition theo `37-role-lifecycle-catalog.md`.
 - `DAY`: công bố kết quả chết sau khi night resolution hoàn tất.
 - `DISCUSSION`: người chết không được nói hoặc gửi chat vào kênh người sống.
 - `VOTING`: chỉ player còn quyền vote mới được gửi `VOTE_EXECUTION`.
-- Chuyển phase phải phát một event có `fromPhase`, `toPhase`, `sequence`, `deadline`.
+- Chuyển phase phải phát một event có `fromPhase`, `toPhase`, `serverSequence`, `deadline`.
 
 ### 3.2 Timeout
 
@@ -110,12 +112,13 @@ Resolution dùng các bước sau, mỗi bước có transaction và event audit
 7. Resolve healing/restoration
 8. Resolve poison, curse, burn and direct damage
 9. Resolve survival rules (Elder, Idiot, Rusty Sword Knight)
-10. Resolve scheduled deaths
-11. Propagate Lovers/other death relationships
-12. Resolve death triggers (Hunter, Avenger, Wolf Cub, Wild Child)
-13. Resolve transformations
-14. Recalculate knowledge and public results
-15. Check win conditions
+10. Resolve non-death conversions (Blood Moon, Father Wolf if enabled)
+11. Resolve scheduled deaths
+12. Propagate Lovers/other death relationships
+13. Resolve death triggers (Hunter, Avenger, Wolf Cub, Wild Child)
+14. Resolve transformations
+15. Recalculate knowledge and public results
+16. Check win conditions
 ```
 
 ### 5.1 Death model
@@ -229,7 +232,7 @@ Sáng hôm sau công khai danh sách người chết và role chỉ khi `revealR
 
 Win check chạy sau mỗi `PLAYER_DEATH_CONFIRMED`, sau transformation và cuối mỗi phase. Default priority:
 
-1. `ANGEL_FIRST_NIGHT_DEATH` — Angel thắng nếu chết đúng điều kiện trong đêm/ngày đầu; game kết thúc ngay sau khi death được xác nhận.
+1. `ANGEL_FIRST_OBJECTIVE` — Angel thắng nếu hoàn thành `FIRST_NIGHT_WOLF_ATTACK` hoặc `FIRST_DAY_EXECUTION`; game kết thúc ngay sau khi objective được xác nhận.
 2. `LOVERS_LAST_TWO` — cả hai Lover còn sống và mọi player khác đã chết.
 3. `PIPER_ALL_BEWITCHED` — mọi player còn sống hợp lệ bị bewitched.
 4. `SECT_ELIMINATE_OPPOSING_GROUP` — Sect đạt mục tiêu scenario.
@@ -257,7 +260,7 @@ Snapshot công khai tuyệt đối không chứa role, alignment, pending privat
 - Không bắt đầu khi thiếu player hoặc thiếu điều kiện thắng.
 - Role reveal không làm lộ role người khác.
 - Timeout tạo PASS đúng một lần.
-- Reconnect nhận replay nếu sequence còn retention; nếu không nhận snapshot.
+- Reconnect nhận replay nếu `serverSequence` còn retention; nếu không nhận snapshot.
 - Duplicate request không tạo effect thứ hai.
 
 ### Night/death
@@ -297,7 +300,7 @@ Snapshot công khai tuyệt đối không chứa role, alignment, pending privat
 ### Security/consistency
 
 - Private knowledge không xuất hiện trong public snapshot.
-- Event sequence tăng đơn điệu.
+- Event `serverSequence` tăng đơn điệu.
 - Rollback/retry không làm chết hoặc biến đổi một player hai lần.
 - Audit có actor, target, cause, variant, priority và resolution ID cho mọi effect.
 
@@ -306,16 +309,18 @@ Snapshot công khai tuyệt đối không chứa role, alignment, pending privat
 ```yaml
 scenarioCode: classic-v4
 rulesetVersion: 4.1
-wolfDogVariant: VILLAGE_LOCKED
-bloodMoonVariant: DISABLED
-wolfVotePolicy: MAJORITY_TIE_NO_ATTACK
-revealRoleOnDeath: true
-hunterDeathCauses: [WOLF_ATTACK, EXECUTION]
-witchHealScope: WOLF_ATTACK
-bodyguardRepeatPolicy: FORBID_CONSECUTIVE
-voteTiePolicy: SCAPEGOAT_IF_PRESENT_ELSE_NO_EXECUTION
-winPriority: [ANGEL, LOVERS, PIPER, SECT, WHITE_WOLF, WOLVES, VILLAGE]
-nightTimeoutPolicy: PASS
+variants:
+  wolfDog: VILLAGE_LOCKED
+  bloodMoon: DISABLED
+  wolfVotePolicy: MAJORITY_TIE_NO_ATTACK
+  revealRoleOnDeath: true
+  hunterDeathCauses: [WOLF_ATTACK, EXECUTION]
+  witchHealScope: WOLF_ATTACK
+  bodyguardRepeatPolicy: FORBID_CONSECUTIVE
+  voteTiePolicy: SCAPEGOAT_IF_PRESENT_ELSE_NO_EXECUTION
+winPriority: [ANGEL, LOVERS, PIPER, SECT, WHITE_WOLF, WEREWOLF, VILLAGE]
+timeoutPolicy:
+  night: PASS
 ```
 
 Một scenario không có các giá trị trên bị coi là chưa implementation-ready.

@@ -18,7 +18,7 @@
 - `game_events` là append-only audit/replay log.
 - `game_state_snapshots` lưu snapshot định kỳ và bắt buộc tại mỗi phase change.
 - Khi restart: nạp snapshot gần nhất rồi replay event sau snapshot.
-- `game_events` có unique `(game_id, server_sequence)` và index phục vụ replay/retention.
+- `game_events` có unique `(game_id, server_sequence)` và index phục vụ replay/retention. DB dùng snake_case; transport/domain map field này thành `serverSequence`.
 - Retention mặc định tối thiểu 72 giờ hoặc trọn một ván, tùy thời điểm nào lâu hơn.
 - Khi cursor hết retention, server gửi snapshot mới nhất, không trả `SEQUENCE_TOO_OLD` cho flow reconnect thông thường.
 

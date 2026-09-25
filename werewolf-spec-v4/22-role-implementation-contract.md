@@ -55,6 +55,7 @@ Từng Role có `roleCode` cố định và được đăng ký trong `RoleCatal
   "group": "VILLAGE",
   "alignment": "VILLAGE",
   "type": "CHARACTER",
+  "capabilities": ["ACTIVE", "LIMITED_USE", "KNOWLEDGE"],
   "defaultVariant": "CLASSIC",
   "assetKey": "witch.card",
   "abilities": ["witch.heal", "witch.poison"],
@@ -116,7 +117,7 @@ Từng Role có `roleCode` cố định và được đăng ký trong `RoleCatal
     "isTargetAlive",
     "effectUseRemaining"
   ],
-  "resolveOrder": 6,
+  "priority": 5000,
   "payloadSchema": {
     "additionalProperties": false,
     "required": ["actorId", "targets"]
@@ -148,7 +149,7 @@ Từng Role có `roleCode` cố định và được đăng ký trong `RoleCatal
   "description": "Cứu người chơi khỏi pending death của wolf attack.",
   "mutates": ["pendingDeaths", "statuses"],
   "appliesTo": "target",
-  "requiresPriority": 3000,
+  "requiresPriority": 5000,
   "canStack": false,
   "publicEvent": "PLAYER_SAVED",
   "privateEvent": "YOU_WERE_SAVED"
@@ -162,7 +163,7 @@ Từng Role có `roleCode` cố định và được đăng ký trong `RoleCatal
   "eventCode": "PLAYER_SAVED",
   "eventType": "PUBLIC",
   "phase": "NIGHT_RESOLUTION",
-  "sequence": 54,
+  "serverSequence": 54,
   "payload": {
     "victimId": "p05",
     "cause": "WOLF_ATTACK",
@@ -286,7 +287,7 @@ SUBMITTED
 → COMPLETE
 ```
 
-Mỗi lifecycle state phải có `timestamp`, `sequence`, `actorId`, `targetIds`, `resolutionId`.
+Mỗi lifecycle state phải có `timestamp`, `serverSequence`, `actorId`, `targetIds`, `resolutionId`.
 
 ## 7. Bảng mapping bắt buộc cho từng role
 
@@ -400,8 +401,8 @@ rules:
 ```yaml
 roleCode: wild-child
 rules:
-  - code: wild_child.choose_idol_at_game_start
-  - code: wild_child.transform_when_idol_dies
+  - code: wild-child.choose_idol_at_game_start
+  - code: wild-child.transform_when_idol_dies
 ```
 
 #### Resolve order
@@ -420,11 +421,18 @@ public final class RoleDefinitionValidator {
         assertNotBlank(role.getRoleCode());
         assertNotNull(role.getGroup());
         assertNotNull(role.getAlignment());
-        assertNotEmpty(role.getAbilities());
-        assertNotEmpty(role.getActionCodes());
-        assertNotEmpty(role.getRules());
+        assertNotNull(role.getCapabilities());
+        assertCapabilitiesMatchProfile(role);
+        if (role.requiresActiveAction()) {
+            assertNotEmpty(role.getActionCodes());
+        }
+        if (role.requiresAbility()) {
+            assertNotEmpty(role.getAbilities());
+        }
+        if (role.requiresRuleOrKnowledgeContract()) {
+            assertTrue(!role.getRules().isEmpty() || !role.getKnowledgeCodes().isEmpty());
+        }
         assertNotNull(role.getSource());
-        assertTrue(role.getAbilities().size() >= 1);
         assertNoDuplicateCodes(role);
     }
 }
@@ -441,24 +449,30 @@ Cấm:
 
 ## 10. Quy tắc `priority` bắt buộc
 
-Mỗi effect/ability/action phải có `priority` trong một hệ thống được quản lý rõ:
+Mỗi effect/ability/action phải có `priority` theo registry tại `25-resolution-matrix.md`; file này không định nghĩa một bảng priority riêng:
 
 ```text
 1000 PRE_ACTION
 2000 ACTION_VALIDATION
-3000 PROTECTION
-4000 HEAL
-5000 DAMAGE
-6000 DEATH
-7000 RELATIONSHIP
-8000 TRANSFORMATION
-9000 WIN_CHECK
+3000 SPECIAL_ATTACK
+4000 PROTECTION
+5000 HEAL
+6000 DAMAGE
+7000 PENDING_DEATH
+7500 NON_DEATH_CONVERSION
+8000 DEATH_CONFIRMATION
+9000 RELATIONSHIP
+10000 DEATH_TRIGGER
+11000 TRANSFORMATION
+12000 KNOWLEDGE_RECALCULATION
+13000 WIN_CHECK
 ```
 
 Cần ưu tiên rõ hơn cho đúng case phức tạp:
 
-- `Protection` > `Heal` > `Poison` > `Death`
-- `Relationship` > `Transformation`
+- `Protection` < `Heal` < `Damage` < `PendingDeath` < `DeathConfirmation`
+- `NonDeathConversion` chạy sau protection/heal nhưng trước `DeathConfirmation`.
+- `Relationship` < `DeathTrigger` < `Transformation`.
 - `WinCheck` luôn cuối cùng
 
 Không được dùng `if/else` ngẫu nhiên theo order nhúng trong role logic.
@@ -548,9 +562,9 @@ public class PlayerState {
 
 ```json
 {
-  "requestId": "8d57f9d5-4dd8-47f4-a9bd-6a67a5dc72bb",
+  "clientRequestId": "8d57f9d5-4dd8-47f4-a9bd-6a67a5dc72bb",
   "status": "VALIDATED",
-  "sequence": 21,
+  "serverSequence": 21,
   "eventCode": "ACTION_ACCEPTED",
   "publicMessage": null,
   "privateKnowledge": null,
@@ -566,13 +580,10 @@ Mỗi event phải có:
 {
   "eventCode": "PLAYER_DIED",
   "phase": "NIGHT_RESOLUTION",
-  "sequence": 62,
+  "serverSequence": 62,
   "audience": "PUBLIC",
   "actorId": null,
   "targetId": "p08",
-  "cause": "WOLF_ATTACK",
-  "variant": "CLASSIC",
-  "priority": 6000,
   "payload": {
     "reason": "Bị Sói cắn",
     "role": "bodyguard"
@@ -580,16 +591,15 @@ Mỗi event phải có:
 }
 ```
 
-Không cho event thiếu:
+Public `GameEvent` không được thiếu:
 
 - `eventCode`
 - `phase`
-- `sequence`
+- `serverSequence`
 - `audience`
-- `targetId` hoặc `actorId`
-- `cause`
-- `variant`
-- `priority`
+- `payload` theo schema transport
+
+`cause`, `variant`, `priority`, actor/target detail và role detail là audit fields. Chúng bắt buộc trong `AuditEvent`, nhưng chỉ xuất hiện trong public event khi scenario cho phép hoặc trong audience `MODERATOR`.
 
 ## 16. Audit log bắt buộc
 
@@ -606,7 +616,7 @@ Mỗi effect và mỗi action phải có `auditEntry`:
   "effectCode": "schedule_pending_death",
   "cause": "WOLF_ATTACK",
   "phase": "NIGHT_RESOLUTION",
-  "sequence": 58,
+  "serverSequence": 58,
   "priority": 6000,
   "variant": "CLASSIC",
   "createdAt": "2026-09-25T12:00:01Z"
@@ -619,10 +629,10 @@ Mỗi game phải ghi:
 
 ```yaml
 rulesetVersion: 4.1
-variantCodes:
-  - wolfDog: VILLAGE_LOCKED
-  - bloodMoon: DISABLED
-  - voteTiePolicy: SCAPEGOAT_IF_PRESENT_ELSE_NO_EXECUTION
+variants:
+  wolfDog: VILLAGE_LOCKED
+  bloodMoon: DISABLED
+  voteTiePolicy: SCAPEGOAT_IF_PRESENT_ELSE_NO_EXECUTION
 ```
 
 Các role không có `variantCode` phải dùng default variant của ruleset; không được suy diễn biến thể khi runtime.

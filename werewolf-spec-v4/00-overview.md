@@ -15,11 +15,16 @@ Bộ này là Source of Truth cho game Ma Sói online. Tài liệu tách rõ:
 - Status
 - Event
 - Phase
+- Role activation and call order
 - Runtime State
 - Transport/UI/Infrastructure
 
 ## 2. Authoritative model
 `Role → Ability → Action → Validator → Rule → Effect → GameState → GameEvent`
+
+Role activation/call scheduling is governed by `37-role-lifecycle-catalog.md`;
+`firstNightOrder`/`normalNightOrder` are never inferred from role existence
+alone.
 
 Java Game Server là authoritative. Flutter chỉ gửi command và render state/event được server cấp.
 

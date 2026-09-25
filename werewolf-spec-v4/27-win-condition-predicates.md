@@ -30,12 +30,11 @@ winPriority:
 ### 3.1 Angel
 
 ```yaml
-winConditionCode: ANGEL_FIRST_NIGHT_DEATH
+winConditionCode: ANGEL_FIRST_OBJECTIVE
 predicate:
-  and:
-    - angelPlayer.alive == false
-    - angelDeathPhase == NIGHT
-    - dayNumber == 1
+  or:
+    - angelObjective == FIRST_NIGHT_WOLF_ATTACK
+    - angelObjective == FIRST_DAY_EXECUTION
 ```
 
 ### 3.2 Lovers

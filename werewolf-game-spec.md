@@ -1,5 +1,7 @@
 # Werewolf Game — Source of Truth & Implementation Roadmap
 
+> **LEGACY / NON-CANONICAL:** Tài liệu này là roadmap và source lịch sử. Không dùng trực tiếp để sinh DTO, seed, action registry hoặc test runtime. Contract canonical hiện tại nằm trong `werewolf-spec-v4/`; khi có khác biệt, V4 được ưu tiên.
+
 > Mục tiêu: chuẩn hóa toàn bộ `pack.md` thành một hệ thống dữ liệu và game engine rõ ràng, dễ triển khai, có thể mở rộng role mới mà không phải sửa hàng loạt code Java.
 >
 > Stack định hướng:

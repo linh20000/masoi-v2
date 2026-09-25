@@ -9,17 +9,15 @@ scenarioCode: classic-v4
 version: 4.1
 name: Classic Werewolf V4
 playerCount: 10
-requiredRoles:
-  - werewolf
-  - werewolf
-  - seer
-  - bodyguard
-  - witch
-  - villager
-  - villager
-  - cupid
-  - hunter
-  - wolf-cub
+roleDeck:
+  werewolf: 2
+  seer: 1
+  bodyguard: 1
+  witch: 1
+  villager: 2
+  cupid: 1
+  hunter: 1
+  wolf-cub: 1
 excludedRoles: []
 variants:
   wolfDog: VILLAGE_LOCKED
@@ -29,18 +27,41 @@ variants:
   revealRoleOnDeath: true
   allowDualUseWitch: true
   allowTitleTransfer: true
-nightOrder:
-  - werewolf
-  - seer
-  - bodyguard
-  - witch
-  - cupid
-  - wolf-cub
-  - hunter
+firstNightOrder:
+  - thief.setup
+  - cupid.choose_lovers
+  - lovers.reveal
+  - wild-child.choose_idol
+  - two-sisters.reveal
+  - three-brothers.reveal
+  - actor.setup
+  - seer.inspect_player
+  - fox.inspect_group
+  - bodyguard.protect_player
+  - werewolf.select_victim
+  - little-girl.observe_wolves
+  - witch.heal_target
+  - witch.poison_target
+normalNightOrder:
+  - actor.use_role
+  - seer.inspect_player
+  - fox.inspect_group
+  - bodyguard.protect_player
+  - werewolf.select_victim
+  - little-girl.observe_wolves
+  - witch.heal_target
+  - witch.poison_target
 phaseSettings:
   discussionMinutes: 180
   votingMinutes: 120
   nightMinutes: 90
+startPolicy:
+  minimumPlayers: 10
+  requireAllReady: true
+timeoutPolicy:
+  night: PASS
+  discussion: AUTO_ADVANCE
+  voting: ABSTAIN
 winPriority:
   - ANGEL
   - LOVERS
@@ -61,16 +82,22 @@ winPriority:
 - variants
 - winPriority
 - phaseSettings
-- nightOrder
+- firstNightOrder
+- normalNightOrder
 - startPolicy
 - timeoutPolicy
 
 ## 3. Luật bắt đầu
 
 - Không cho bắt đầu nếu `playerCount` không phù hợp preset.
-- Nếu `requiredRoles` thiếu, dùng `roleDeck` được build từ `catalog`.
+- `roleDeck` là canonical input; role counts phải cộng đúng `playerCount`.
+- `requiredRoles` chỉ là legacy shorthand và phải được normalize thành `roleDeck` trước validation.
+- Mỗi action trong `firstNightOrder`/`normalNightOrder` phải tồn tại trong
+  `37-role-lifecycle-catalog.md` hoặc action registry; role/action không đủ
+  điều kiện sẽ bị scheduler loại khỏi queue.
 - `playerCount` không được thay đổi trong ván.
-- Nếu role trong `requiredRoles` không tồn tại, reject setup.
+- Nếu role trong `roleDeck` không tồn tại, reject setup.
+- Nếu `winPriority` chứa code ngoài canonical catalog, reject setup.
 
 ## 4. Mục tiêu
 

@@ -4,7 +4,7 @@
 
 ## 1. Idempotency
 
-- Mỗi `clientRequestId` được lưu trong `game_idempotency_keys`.
+- Mỗi `(gameId, playerId, clientRequestId)` được lưu trong `game_idempotency_keys`.
 - Nếu request với cùng `clientRequestId` gửi lại, server trả kết quả cũ, không xử lý lần hai.
 - Nếu request có cùng `actionCode` nhưng khác `clientRequestId`, xử lý như action mới.
 
@@ -33,6 +33,6 @@ duplicateRequestPolicy: RETURN_PREVIOUS_RESULT
 
 ## 5. Server rules
 
-- sequence không được giảm.
-- request không hợp lệ vì `lastSequence` quá cũ -> reject với `SEQUENCE_TOO_OLD`.
+- `serverSequence` không được giảm.
+- Với reconnect thông thường, `lastSequence` quá cũ không phải lỗi: server gửi snapshot mới nhất rồi stream tiếp từ `serverSequence`. `SEQUENCE_TOO_OLD` chỉ dùng cho API replay bắt buộc lịch sử đầy đủ hoặc request không thuộc flow reconnect.
 - reconnect không được cấp quyền quyết định game state bất hợp pháp.

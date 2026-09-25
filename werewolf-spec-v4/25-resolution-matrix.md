@@ -12,6 +12,7 @@
 5000 HEAL
 6000 DAMAGE
 7000 PENDING_DEATH
+7500 NON_DEATH_CONVERSION
 8000 DEATH_CONFIRMATION
 9000 RELATIONSHIP
 10000 DEATH_TRIGGER
@@ -27,6 +28,7 @@ Số lớn hơn được resolve sau số nhỏ hơn. Cùng priority phải có 
 - Protection chỉ hủy PendingDeath mà `protectionScope` cho phép.
 - Heal chỉ hủy death cause nằm trong `healScope`.
 - Poison độc lập với Bodyguard.
+- Non-death conversion (`BLOOD_MOON_INFECTION`, và `FATHER_WOLF_CONVERSION` nếu scenario bật) chạy sau protection/heal nhưng trước `DEATH_CONFIRMATION`; conversion thành công phải hủy pending death theo đúng scope.
 - Mỗi player chỉ có một `PLAYER_DEATH_CONFIRMED` trong một resolution; lưu mọi causes và chọn `primaryCause` theo policy.
 - Relationship propagation chạy sau primary death confirmation.
 - Death trigger chạy sau relationship propagation.

@@ -23,6 +23,7 @@
 18-asset-management.md
 19-test-spec.md
 20-deployment-spec.md
+37-role-lifecycle-catalog.md
 
 02-role-details/
 03-non-role/
@@ -42,6 +43,7 @@ sources/
 - Wolf-Dog keeps conflicting source variants explicit.
 - Asset, Test, Deployment are separate numbered specs.
 - Generic UI selection is not treated as a domain Action.
+- Role activation, call slots and first/normal night order are canonicalized in `37-role-lifecycle-catalog.md`.
 
 ## Implementation principle
 `Role → Ability → Action → Validator → Rule → Effect → GameState → GameEvent`

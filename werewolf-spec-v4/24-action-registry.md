@@ -40,8 +40,15 @@ allowedVariants: [CLASSIC, PACK_2]
 - priority
 - effect list
 - event contract
+- activation lifecycle/type
+- turnOrder và scenario slot
+- timeoutPolicy
+- activationCondition
+- private/public result audience
 
-## 3. Các action core cần có
+## 3. Canonical action registry
+
+Danh sách dưới đây là canonical code tối thiểu. Mỗi dòng phải được materialize thành một `ActionDefinition` đầy đủ theo schema ở mục 1; không được coi danh sách này là mô tả thay thế cho definition.
 
 ```text
 werewolf.select_victim
@@ -52,9 +59,23 @@ witch.poison_target
 hunter.mark_target
 hunter.shoot
 cupid.link_lovers
-ravens.curse_target
-moon_maiden.disable_ability
+raven.curse_target
+moon-maiden.disable_ability
 vote.execution
+white-werewolf.kill
+werewolf.extra_kill
+father-of-werewolves.convert_victim
+wild-child.choose_idol
+wolf-dog.choose_alignment
+fox.inspect_group
+pied-piper.bewitch_player
+arsonist.burn_house
+pharmacist.use_sedative
+pharmacist.use_restorative
+rusty-sword-knight.check_wolf
+assassin.kill
+avenger.choose_target
+title.transfer
 ```
 
 ## 4. Validation mặc định
@@ -76,6 +97,6 @@ Action invalid phải trả mã lỗi rõ ràng, ví dụ:
 - PLAYER_DEAD
 - WRONG_PHASE
 - ABILITY_DISABLED
-- TARGET_INVALID
+- INVALID_TARGET
 - ACTION_EXPIRED
 - DUPLICATE_REQUEST

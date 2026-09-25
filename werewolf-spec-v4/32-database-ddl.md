@@ -33,13 +33,27 @@ CREATE TABLE game_players (
 CREATE TABLE game_events (
   id UUID PRIMARY KEY,
   game_id UUID NOT NULL REFERENCES games(id),
-  sequence BIGINT NOT NULL,
+  server_sequence BIGINT NOT NULL,
   event_code TEXT NOT NULL,
   phase TEXT NOT NULL,
   audience TEXT NOT NULL,
   payload JSONB,
   created_at TIMESTAMPTZ NOT NULL,
-  UNIQUE (game_id, sequence)
+  UNIQUE (game_id, server_sequence)
+);
+
+CREATE TABLE game_idempotency_keys (
+  id UUID PRIMARY KEY,
+  game_id UUID NOT NULL REFERENCES games(id),
+  player_id UUID NOT NULL REFERENCES game_players(id),
+  client_request_id TEXT NOT NULL,
+  request_hash TEXT NOT NULL,
+  action_id UUID NULL,
+  result_status TEXT NOT NULL,
+  result_payload JSONB,
+  created_at TIMESTAMPTZ NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  UNIQUE (game_id, player_id, client_request_id)
 );
 
 CREATE TABLE game_actions (
@@ -50,8 +64,9 @@ CREATE TABLE game_actions (
   client_request_id TEXT NOT NULL,
   status TEXT NOT NULL,
   payload JSONB,
+  idempotency_key_id UUID NOT NULL REFERENCES game_idempotency_keys(id),
   created_at TIMESTAMPTZ NOT NULL,
-  UNIQUE (game_id, client_request_id)
+  UNIQUE (game_id, actor_id, client_request_id)
 );
 
 CREATE TABLE game_pending_deaths (
@@ -98,14 +113,15 @@ CREATE TABLE game_knowledge (
 ## 2. Index
 
 ```sql
-CREATE INDEX idx_game_events_sequence ON game_events(game_id, sequence);
+CREATE INDEX idx_game_events_sequence ON game_events(game_id, server_sequence);
 CREATE INDEX idx_game_actions_client_request ON game_actions(game_id, client_request_id);
+CREATE INDEX idx_game_idempotency_lookup ON game_idempotency_keys(game_id, player_id, client_request_id);
 CREATE INDEX idx_game_pending_deaths_player ON game_pending_deaths(game_id, victim_id);
 CREATE INDEX idx_game_statuses_player ON game_statuses(game_id, player_id);
 ```
 
 ## 3. Rule
 
-- `game_events.sequence` unique per game.
-- `game_actions.client_request_id` unique per game.
+- `game_events.server_sequence` unique per game.
+- Idempotency is unique per `(game_id, player_id, client_request_id)`.
 - `game_pending_deaths` one active death per victim per resolution.

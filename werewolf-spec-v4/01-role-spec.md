@@ -25,3 +25,10 @@ Player
 
 ## 4. Role details
 Chi tiết từng role nằm tại `02-role-details/`.
+
+## 5. Activation and call order
+Lifecycle, activation condition, first-night order, normal-night order và
+event/day queue của role được định nghĩa tại `37-role-lifecycle-catalog.md`.
+Role detail không tự tạo thêm một night turn ngoài catalog này; nếu có
+variant, scenario phải khai báo variant và scheduler phải lọc action theo
+activation condition.
