@@ -43,7 +43,7 @@ Action is player intent. Effect is state mutation. Validation and Rule evaluatio
 Knowledge is recipient-scoped and must never leak through public snapshot/event payloads.
 
 ### F-08 — Runtime authority
-Java owns timers, phase transitions, validation, resolution, death, transformation and win checks. Flutter never decides these outcomes.
+Java owns timers, phase transitions, validation, resolution, death, transformation and win checks. React native never decides these outcomes.
 
 ### F-09 — Deployment topology
 Deployment is kept compatible with three independent VPSs and no mandatory Gateway.

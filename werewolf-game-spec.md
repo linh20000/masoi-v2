@@ -5,7 +5,7 @@
 > Mục tiêu: chuẩn hóa toàn bộ `pack.md` thành một hệ thống dữ liệu và game engine rõ ràng, dễ triển khai, có thể mở rộng role mới mà không phải sửa hàng loạt code Java.
 >
 > Stack định hướng:
-> - Client: Flutter
+> - Client: React native
 > - Game Backend: Java / Spring Boot
 > - Realtime: WebSocket
 > - Database: PostgreSQL
@@ -20,9 +20,9 @@
 
 ## 1.1 Server là nguồn sự thật duy nhất
 
-Flutter **không quyết định game state**.
+React native **không quyết định game state**.
 
-Flutter chỉ:
+React native chỉ:
 
 ```text
 Render Game State
@@ -50,7 +50,7 @@ Java server quyết định:
 - win condition
 - game over
 
-Không được đưa business rule quan trọng vào Flutter.
+Không được đưa business rule quan trọng vào React native.
 
 ---
 
@@ -198,7 +198,7 @@ docs/game/
 ├── 14-database-design.md
 ├── 15-java-backend-architecture.md
 ├── 16-websocket-protocol.md
-├── 17-flutter-client-architecture.md
+├── 17-React native-client-architecture.md
 ├── 18-asset-management.md
 ├── 19-test-scenarios.md
 └── 20-deployment.md
@@ -811,7 +811,7 @@ WIN_CHECK
 
 Server sở hữu timer.
 
-Flutter chỉ hiển thị:
+React native chỉ hiển thị:
 
 ```text
 phase
@@ -1110,7 +1110,7 @@ S3
 Cloudflare R2
 ```
 
-Flutter lấy metadata từ server và tải asset.
+React native lấy metadata từ server và tải asset.
 
 ---
 
@@ -1320,9 +1320,9 @@ Private:
 
 ---
 
-# 30. Action Definition gửi cho Flutter
+# 30. Action Definition gửi cho React native
 
-Flutter không hard-code:
+React native không hard-code:
 
 ```dart
 if (role == Role.witch) ...
@@ -1343,13 +1343,13 @@ Server gửi:
 }
 ```
 
-Flutter render UI dựa trên definition.
+React native render UI dựa trên definition.
 
 Điều này cho phép thêm Role mới mà giảm tối đa việc sửa client.
 
 ---
 
-# 31. Flutter Architecture
+# 31. React native Architecture
 
 ```text
 lib/
@@ -1406,7 +1406,7 @@ lastReceivedEventId
 Reconnect:
 
 ```text
-Flutter
+React native
   ↓
 RECONNECT(gameId, playerId, lastEventId)
   ↓
@@ -1414,10 +1414,10 @@ Server
   ↓
 Snapshot + missing events
   ↓
-Flutter rebuild state
+React native rebuild state
 ```
 
-Không dựa vào local state của Flutter để khôi phục game.
+Không dựa vào local state của React native để khôi phục game.
 
 ---
 
@@ -1808,10 +1808,10 @@ WinConditionEngine
 16-websocket-protocol.md
 ```
 
-## M14 — Flutter
+## M14 — React native
 
 ```text
-17-flutter-client-architecture.md
+17-React native-client-architecture.md
 ```
 
 ## M15 — Testing
@@ -1863,7 +1863,7 @@ Thứ tự khuyến nghị:
         ↓
 14. WebSocket
         ↓
-15. Flutter
+15. React native
         ↓
 16. Reconnect
         ↓
@@ -2042,14 +2042,14 @@ Mục tiêu cuối:
                        ↓
              ┌─────────┴─────────┐
              ↓                   ↓
-          Flutter             Players
+          React native             Players
 ```
 
 **Database lưu definition + runtime state.**
 
 **Java giữ toàn bộ game authority.**
 
-**Flutter chỉ render state và gửi command.**
+**React native chỉ render state và gửi command.**
 
 **Role là data, không phải một đống Java class.**
 

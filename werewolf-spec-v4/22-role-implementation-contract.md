@@ -195,9 +195,9 @@ public interface RoleRuntimeContract {
 }
 ```
 
-### 4.2 Không cho dùng logic hardcoded trong Flutter
+### 4.2 Không cho dùng logic hardcoded trong React native
 
-Flutter chỉ nhận:
+React native chỉ nhận:
 
 ```json
 {
@@ -209,7 +209,7 @@ Flutter chỉ nhận:
 }
 ```
 
-Flutter không được:
+React native không được:
 
 - xác định thắng/thua,
 - quyết định ai chết,

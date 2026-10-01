@@ -1,6 +1,6 @@
-# 17 — Flutter Client Architecture
+# 17 — React native Client Architecture
 
-Flutter là renderer + input client, không phải authority.
+React native là renderer + input client, không phải authority.
 
 ## Layers
 ```text
@@ -20,7 +20,7 @@ data/
 `GameTable, PlayerSeat, RoleCard, ActionPanel, GameTimer, VotePanel, EventLog`
 
 ## UI contract
-Server gửi `ActionDefinition` gồm action, phase, target constraints và allowed targets. Flutter render control từ definition.
+Server gửi `ActionDefinition` gồm action, phase, target constraints và allowed targets. React native render control từ definition.
 
 ## Layout
 - Lobby/selection: portrait-first.

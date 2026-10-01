@@ -19,7 +19,7 @@
 14-database-spec.md
 15-java-backend-architecture.md
 16-websocket-protocol.md
-17-flutter-client-architecture.md
+17-React native-client-architecture.md
 18-asset-management.md
 19-test-spec.md
 20-deployment-spec.md

@@ -26,10 +26,10 @@ Role activation/call scheduling is governed by `37-role-lifecycle-catalog.md`;
 `firstNightOrder`/`normalNightOrder` are never inferred from role existence
 alone.
 
-Java Game Server là authoritative. Flutter chỉ gửi command và render state/event được server cấp.
+Java Game Server là authoritative. React native chỉ gửi command và render state/event được server cấp.
 
 ## 3. Stack
-- Flutter
+- React native
 - Java / Spring Boot
 - WebSocket
 - PostgreSQL
